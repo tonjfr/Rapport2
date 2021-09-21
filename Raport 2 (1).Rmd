@@ -1,0 +1,85 @@
+---
+title: "Rapport 2 (1)"
+author: "Aleksander Josdal"
+date: "21 9 2021"
+output: html_document
+---
+```{r}
+library(tidyverse)
+
+library(readxl)
+dat <- read_excel("C:/Users/aleks/OneDrive/Skrivebord/Kvantitativ metode og statistikk/statistics-report-5-in-IDR4000/Rapport2/Utkast_1.xlsx")
+
+dat %>%
+  ggplot(aes(watt, lactate))  + 
+  geom_line(lty = 2) +
+  geom_point(shape = 21, fill = "lightblue", size = 2.5) +
+  geom_hline(yintercept = 4, color = "red") +
+  geom_vline(xintercept = 297, color = "blue") + 
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = "#e41a1c") +
+  
+  # Adding a polynomial linear model to the plot
+  
+  # poly(x, 2) add a second degree polynomial model.
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ poly(x, 2), color = "#377eb8") +
+  # poly(x, 3) add a third degree polynomial model.
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ poly(x, 3), color = "#4daf4a") +
+  # poly(x, 4) add a forth degree polynomial model.
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ poly(x, 4), color = "#ff7f00")
+```
+
+```{r}
+lactate <- dat %>%
+  # Select columns needed for analysis
+  select(fp, watt, lactate) %>%
+ 
+  # Remove NA (missing) values to avoid warning/error messages.
+  filter(!is.na(lactate))
+
+# fit "straight line" model
+m1 <- lm(lactate ~ watt, data = lactate)
+
+# fit second degree polynomial
+m2 <- lm(lactate ~ poly(watt, 2, raw = TRUE), data = lactate)
+
+# fit third degree polynomial
+m3 <- lm(lactate ~ poly(watt, 3, raw = TRUE), data = lactate)
+
+# fit forth degree polynomial
+m4 <- lm(lactate ~ poly(watt, 4, raw = TRUE), data = lactate)
+
+# Store all residuals as new variables
+lactate$resid.m1 <- resid(m1)
+lactate$resid.m2 <- resid(m2)
+lactate$resid.m3 <- resid(m3)
+lactate$resid.m4 <- resid(m4)
+
+lactate %>%
+  # gather all the data from the models
+  pivot_longer(names_to = "model", 
+               values_to = "residual", 
+               names_prefix = "resid.", 
+               names_transform = list(residual = as.numeric), 
+               cols = resid.m1:resid.m4) %>%
+  # Plot values with the observed watt on x axis and residual values at the y
+  ggplot(aes(watt, residual, fill = model)) + geom_point(shape = 21, size = 3) +
+  
+  # To set the same colors/fills as above we use scale fill manual
+  scale_fill_manual(values = c("#e41a1c", "#377eb8", "#4daf4a", "#ff7f00"))
+```
+
+```{r}
+# new data data frame
+ndf <- data.frame(watt = seq(from = 125, to = 300, by = 0.1)) # high resolution, we can find the nearest10:th a watt
+
+ndf$predictions <- predict(m3, newdata = ndf)
+
+# Which value of the predictions comes closest to our value of 4 mmol L-1?
+# abs finds the absolute value, makes all values positive, 
+# predictions - 4 givs an exact prediction of 4 mmol the value zero
+# filter the row which has the prediction - 4 equal to the minimal absolut difference between prediction and 4 mmol
+lactate_threshold <- ndf %>%
+  filter(abs(predictions - 4) == min(abs(predictions - 4)))
+
+```
+
