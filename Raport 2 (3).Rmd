@@ -1,0 +1,31 @@
+---
+title: "Rapport 2 (3)"
+author: "Aleksander Josdal"
+date: "21 9 2021"
+output: html_document
+---
+## Does percentage of type 2 muscle fibres affect performance in squat 3RM maximum load?
+
+```{r}
+library(tidyverse)
+library(exscidata)
+library(kableExtra)
+library(dplyr)
+
+data("hypertrophy") 
+
+hypertrophy %>%
+  
+  select(PARTICIPANT, BODYMASS_T1, SQUAT_3RM) %>%
+  
+  ggplot(aes(BODYMASS_T1, SQUAT_3RM)) + geom_point(size = 3, fill = "lightblue", shape = 21) +
+  
+geom_smooth(method = "lm") 
+
+reg<-lm(SQUAT_3RM ~ BODYMASS_T1, data = hypertrophy)
+
+summary(reg)
+
+plot(reg)
+```
+
