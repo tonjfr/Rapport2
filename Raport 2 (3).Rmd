@@ -1,31 +1,33 @@
 ---
-title: "Rapport 2 (3)"
-author: "Aleksander Josdal"
+title: "Report 2 part 3"
+author: "Aleksander Josdal, Vemund Lien, Tonje Fredriksen, Pernille Breili"
 date: "21 9 2021"
 output: html_document
 ---
-## Does percentage of type 2 muscle fibres affect performance in squat 3RM maximum load?
+# Part 3, interpreting a regression table
+## Introduction
+### Does bodyweight affect performance in squat 3RM maximum load?
 
-```{r}
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(exscidata)
 library(kableExtra)
 library(dplyr)
+library(broom)
+library(knitr)
 
 data("hypertrophy") 
 
-hypertrophy %>%
-  
-  select(PARTICIPANT, BODYMASS_T1, SQUAT_3RM) %>%
-  
-  ggplot(aes(BODYMASS_T1, SQUAT_3RM)) + geom_point(size = 3, fill = "lightblue", shape = 21) +
-  
-geom_smooth(method = "lm") 
 
 reg<-lm(SQUAT_3RM ~ BODYMASS_T1, data = hypertrophy)
 
-summary(reg)
 
-plot(reg)
+tidy(reg) %>%
+  kable(col.names = c("", "Estimate", "SE", "T-statistic", "P-value"),
+        digits = c(NA, 2, 2, 2, 4)) %>%
+kable_styling(latex_options = "striped")
+
 ```
-
+### When bodyweight increases with 1 kg, 3 RM increases with 1,11kg
