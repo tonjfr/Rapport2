@@ -1,0 +1,33 @@
+---
+title: "Report 2 part 3"
+author: "Aleksander Josdal, Vemund Lien, Tonje Fredriksen, Pernille Breili"
+date: "21 9 2021"
+output: html_document
+---
+# Part 3, interpreting a regression table
+## Introduction
+### Does bodyweight affect performance in squat 3RM maximum load?
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(exscidata)
+library(kableExtra)
+library(dplyr)
+library(broom)
+library(knitr)
+
+data("hypertrophy") 
+
+
+reg<-lm(SQUAT_3RM ~ BODYMASS_T1, data = hypertrophy)
+
+
+tidy(reg) %>%
+  kable(col.names = c("", "Estimate", "SE", "T-statistic", "P-value"),
+        digits = c(NA, 2, 2, 2, 4)) %>%
+kable_styling(latex_options = "striped")
+
+```
+### When bodyweight increases with 1 kg, 3 RM increases with 1,11kg
